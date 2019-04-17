@@ -31,7 +31,7 @@ class CRM_Contactsource_Configuration {
    */
   public static function getActivityTypeID() {
     if (self::$activity_type_id === NULL) {
-      $activity_types = civicrm_api('OptionValue', 'get', [
+      $activity_types = civicrm_api3('OptionValue', 'get', [
           'option_group_id' => 'activity_type',
           'name'            => self::CONTACT_SOURCE_ACTIVITY_TYPE
       ]);
@@ -53,7 +53,7 @@ class CRM_Contactsource_Configuration {
           $activity_type = reset($activity_types);
           if (empty($activity_type['is_active'])) {
             // still needs to be activated
-            civicrm_api('OptionValue', 'create', [
+            civicrm_api3('OptionValue', 'create', [
                 'id'        => $activity_type['id'],
                 'is_active' => 1]);
           }

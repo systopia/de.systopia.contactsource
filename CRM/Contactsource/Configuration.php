@@ -50,7 +50,7 @@ class CRM_Contactsource_Configuration {
 
         case 1:
           // found one
-          $activity_type = reset($activity_types);
+          $activity_type = reset($activity_types['values']);
           if (empty($activity_type['is_active'])) {
             // still needs to be activated
             civicrm_api3('OptionValue', 'create', [

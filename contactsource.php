@@ -152,13 +152,35 @@ function contactsource_civicrm_entityTypes(&$entityTypes) {
 // --- Functions below this ship commented out. Uncomment as required. ---
 
 /**
+ * Implements hook_civicrm_buildForm().
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_buildForm
+ */
+function contactsource_civicrm_buildForm($formName, &$form) {
+  if ($formName == 'CRM_Contact_Form_Contact') {
+    CRM_Contactsource_ActivityCreation::buildForm($formName, $form);
+  }
+}
+
+/**
  * Implements hook_civicrm_preProcess().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_preProcess
- *
+ */
 function contactsource_civicrm_preProcess($formName, &$form) {
+  if ($formName == 'CRM_Contact_Form_Contact')
+    CRM_Contactsource_ActivityCreation::preProcess($formName, $form);
+}
 
-} // */
+/**
+ * Implements hook_civicrm_postProcess().
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postProcess
+ */
+function contactsource_civicrm_postProcess($formName, &$form) {
+  if ($formName == 'CRM_Contact_Form_Contact')
+    CRM_Contactsource_ActivityCreation::postProcess($formName, $form);
+}
 
 /**
  * Implements hook_civicrm_navigationMenu().

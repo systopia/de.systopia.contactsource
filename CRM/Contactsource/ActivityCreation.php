@@ -38,38 +38,41 @@ class CRM_Contactsource_ActivityCreation {
    */
   public static function buildForm($formName, &$form) {
 
-    $templatePath = realpath(dirname(__FILE__) . '/../../templates/CRM/Contactsource/Form');
+    // get campaigns
+    $campaigns = self::getCampaigns();
 
-    $script = file_get_contents(realpath(dirname(__FILE__) . '/../../js/ActivityCreation.js'));
-
-    // Select element for campaign:
+    // extend form elements
     $form->add(
       'select',
       'contactorigin_campaign',
       ts('Campaign'),
-      self::getCampaigns(),
-      TRUE,
-      ['placeholder' => TRUE]
+      $campaigns,
+      TRUE
     );
+    $form->add(
+        'text',
+        'contactorigin_subject',
+        ts('Information'),
+        ['placeholder' => E::ts("Where and how?"), 'class' => 'huge'],
+        TRUE
+    );
+    $form->add(
+        'datepicker',
+        'contactorigin_date',
+        ts('First Contact Date'),
+        [],
+        TRUE,
+        ['time' => FALSE]
+    );
+    $form->setDefaults([
+        'contactorigin_campaign' => 0,
+        'contactorigin_date'     => date('Y-m-d')
+    ]);
 
-    // Even if it accepts an array it will only use the first value,
-    // so we have to repeat this for every element:
-    CRM_Core_Region::instance('page-body')->add(array(
-      'template' => "{$templatePath}/ActivityCreation.tpl"
-     ));
-    CRM_Core_Region::instance('page-body')->add(array(
-      'script' => $script
-     ));
-
-  }
-
-  /**
-   * Perform actions on hook_civicrm_preProcess().
-   *
-   * @param string $formName
-   * @param CRM_Contact_Form_Contact $form
-   */
-  public static function preProcess($formName, &$form) {
+    // inject template and script
+    CRM_Core_Region::instance('page-body')->add(['template' => E::path("templates/CRM/Contactsource/Form/ActivityCreation.tpl")]);
+    Civi::resources()->addScriptFile('de.systopia.contactsource', "js/ActivityCreation.js");
+    Civi::resources()->addVars('contactsource', ['campaigns' => $campaigns]);
   }
 
   /**
@@ -79,6 +82,31 @@ class CRM_Contactsource_ActivityCreation {
    * @param CRM_Contact_Form_Contact $form
    */
   public static function postProcess($formName, &$form) {
+    // create activity
+    $values = $form->exportValues();
+
+    // if date is today, use the time as well
+    $datetime = $values['contactorigin_date'];
+    if (date('Ymd', strtotime($values['contactorigin_date'])) == date('Ymd')) {
+      $datetime = date('YmdHis');
+    }
+
+    // make sure '0' is not passed
+    $campaign = $values['contactorigin_campaign'];
+    if (empty($campaign)) {
+      $campaign = '';
+    }
+
+    // create the contribution
+    civicrm_api3('Activity', 'create', [
+        'activity_date_time' => $datetime,
+        'activity_type_id'   => CRM_Contactsource_Configuration::getActivityTypeID(),
+        'campaign_id'        => $campaign,
+        'status_id'          => 'Completed',
+        'source_contact_id'  => CRM_Core_Session::getLoggedInContactID(),
+        'target_id'          => $form->_contactId,
+        'subject'            => $values['contactorigin_subject'],
+    ]);
   }
 
   /**
@@ -90,11 +118,12 @@ class CRM_Contactsource_ActivityCreation {
     $campaigns = civicrm_api3(
       'Campaign',
       'get',
-      [
-        'sequential' => 1,
-        'is_active' => 1,
-        'return' => ["id", "title"],
-      ]
+        [
+            'sequential'   => 1,
+            'is_active'    => 1,
+            'return'       => ["id", "title"],
+            'option.limit' => 0
+        ]
     );
 
     $campaignIdTitleMap = [

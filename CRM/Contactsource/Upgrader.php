@@ -38,4 +38,22 @@ class CRM_Contactsource_Upgrader extends CRM_Contactsource_Upgrader_Base {
     CRM_Contactsource_Configuration::getActivityTypeID();
   }
 
+  /**
+   * Enable the manual creation (remove filter flag)
+   * @return TRUE on success
+   * @throws Exception
+   */
+  public function upgrade_0101() {
+    // add currency
+    $this->ctx->log->info('Enable manual activity creation');
+    $type = civicrm_api3('OptionValue', 'get', [
+        'option_group_id' => 'activity_type',
+        'value'           => CRM_Contactsource_Configuration::getActivityTypeID()]);
+    if ($type['id']) {
+      civicrm_api3('OptionValue', 'create', [
+          'id'     => $type['id'],
+          'filter' => 0]);
+    }
+    return TRUE;
+  }
 }

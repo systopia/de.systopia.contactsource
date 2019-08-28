@@ -173,6 +173,15 @@ function contactsource_civicrm_postProcess($formName, &$form) {
 }
 
 /**
+ * Implements hook_civicrm_pageRun
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_pageRun
+ */
+function contactsource_civicrm_pageRun(&$page) {
+  CRM_Contactsource_Contactsource::injectInPage($page);
+}
+
+/**
  * Implements hook_civicrm_navigationMenu().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu

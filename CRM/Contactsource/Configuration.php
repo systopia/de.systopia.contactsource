@@ -44,7 +44,7 @@ class CRM_Contactsource_Configuration {
               'label'           => E::ts("First Contact"),
               'is_active'       => 1,
               'is_reserved'     => 1,
-              'filter'          => 1,
+              'filter'          => 0,
               'icon'            => 'fa-user-plus']);
           return self::getActivityTypeID();
 

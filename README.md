@@ -1,44 +1,13 @@
-# de.systopia.contactsource
+# SYSTOPIA Contact Source Extension
 
-![Screenshot](/images/screenshot.png)
+CiviCRM features a ``source`` field with a contact. This field, however, has three basic flaws:
+1. it's free text, so a later evaluation and statistics are tricky
+2. if you merge duplicates, only one of the two source values will prevail, the other one is lost
+3. The ``source`` field doesn't say anything about *when* this contact was generated
 
-(*FIXME: In one or two paragraphs, describe what the extension does and why one would download it. *)
+This extension aims to fix these three problems. It creates a new activity type ``First Contact`` to mark the event of the first encounter with the contact. Activities have a date, a campaign, and survive the merge process without losing data.
 
-The extension is licensed under [AGPL-3.0](LICENSE.txt).
-
-## Requirements
-
-* PHP v5.4+
-* CiviCRM (*FIXME: Version number*)
-
-## Installation (Web UI)
-
-This extension has not yet been published for installation via the web UI.
-
-## Installation (CLI, Zip)
-
-Sysadmins and developers may download the `.zip` file for this extension and
-install it with the command-line tool [cv](https://github.com/civicrm/cv).
-
-```bash
-cd <extension-dir>
-cv dl de.systopia.contactsource@https://github.com/FIXME/de.systopia.contactsource/archive/master.zip
-```
-
-## Installation (CLI, Git)
-
-Sysadmins and developers may clone the [Git](https://en.wikipedia.org/wiki/Git) repo for this extension and
-install it with the command-line tool [cv](https://github.com/civicrm/cv).
-
-```bash
-git clone https://github.com/FIXME/de.systopia.contactsource.git
-cv en contactsource
-```
-
-## Usage
-
-(* FIXME: Where would a new user navigate to get started? What changes would they see? *)
-
-## Known Issues
-
-(* FIXME *)
+For convenience, this extension also features:
+* mandatory field set in the create contact form, so you are forced to provide this information
+* the current source field in the contact summary is now displaying the values of the new ``First Contact`` activities 
+* statistics on your contact sources can now be produced with the activity/campaign reports 

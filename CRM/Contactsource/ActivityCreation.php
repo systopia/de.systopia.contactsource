@@ -23,11 +23,18 @@ use CRM_Contactsource_ExtensionUtil as E;
 class CRM_Contactsource_ActivityCreation {
 
   /**
-   * Perform actions on hook_civicrm_pageRun().
-   *
-   * @param $page
+   * Test if the contact source fields should be injected
+   * @return bool should it be injected
    */
-  public static function pageRun(&$page) {
+  public static function shouldInject() {
+    // if there is a CID, this is an edit!
+    $cid = CRM_Utils_Request::retrieve('cid', 'Integer');
+    if ($cid) {
+      return false;
+    } else {
+      // TODO: setting to turn it off?
+      return true;
+    }
   }
 
   /**

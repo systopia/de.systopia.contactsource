@@ -24,18 +24,18 @@ class CRM_Contactsource_ActivityCreation {
 
   /**
    * Test if the contact source fields should be injected
+   * @param CRM_Core_Form $form the form being rendered
    * @return bool should it be injected
    */
-  public static function shouldInject() {
-    // if there is a CID, this is an edit!
-    $cid = CRM_Utils_Request::retrieve('cid', 'Integer');
-    if ($cid) {
+  public static function shouldInject($form) {
+    if ($form->_action != CRM_Core_Action::ADD) {
       return false;
-    } else {
-      // TODO: setting to turn it off?
-      return true;
     }
+
+    // TODO: setting to turn it off?
+    return true;
   }
+
 
   /**
    * Perform actions on hook_civicrm_buildForm().

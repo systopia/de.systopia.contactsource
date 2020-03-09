@@ -158,7 +158,9 @@ function contactsource_civicrm_entityTypes(&$entityTypes) {
  */
 function contactsource_civicrm_buildForm($formName, &$form) {
   if ($formName == 'CRM_Contact_Form_Contact') {
-    CRM_Contactsource_ActivityCreation::buildForm($formName, $form);
+    if (CRM_Contactsource_ActivityCreation::shouldInject($form)) {
+      CRM_Contactsource_ActivityCreation::buildForm($formName, $form);
+    }
   }
 }
 
@@ -168,8 +170,11 @@ function contactsource_civicrm_buildForm($formName, &$form) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postProcess
  */
 function contactsource_civicrm_postProcess($formName, &$form) {
-  if ($formName == 'CRM_Contact_Form_Contact')
-    CRM_Contactsource_ActivityCreation::postProcess($formName, $form);
+  if ($formName == 'CRM_Contact_Form_Contact') {
+    if (CRM_Contactsource_ActivityCreation::shouldInject($form)) {
+      CRM_Contactsource_ActivityCreation::postProcess($formName, $form);
+    }
+  }
 }
 
 /**

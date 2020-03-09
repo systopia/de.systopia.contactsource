@@ -23,12 +23,19 @@ use CRM_Contactsource_ExtensionUtil as E;
 class CRM_Contactsource_ActivityCreation {
 
   /**
-   * Perform actions on hook_civicrm_pageRun().
-   *
-   * @param $page
+   * Test if the contact source fields should be injected
+   * @param CRM_Core_Form $form the form being rendered
+   * @return bool should it be injected
    */
-  public static function pageRun(&$page) {
+  public static function shouldInject($form) {
+    if ($form->_action != CRM_Core_Action::ADD) {
+      return false;
+    }
+
+    // TODO: setting to turn it off?
+    return true;
   }
+
 
   /**
    * Perform actions on hook_civicrm_buildForm().

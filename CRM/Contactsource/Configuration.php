@@ -99,7 +99,7 @@ class CRM_Contactsource_Configuration
      * 'all_subject'    => "All contacts (subject)"
      *
      */
-    public static function getContactSourceSync()
+    public static function getContactSourceSyncMode()
     {
         $value = Civi::settings()->get('contact_source_sync');
         if (empty($value)) {

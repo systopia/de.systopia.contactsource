@@ -92,8 +92,8 @@ class CRM_Contactsource_Form_Settings extends CRM_Core_Form
             CRM_Core_Session::setStatus(E::ts("%1 contact source activity subjects filled.", [1 => $actvitites_updated]));
         }
         if (!empty($values['contact_source_sync_now'])) {
-            // TODO: run subject fill query
-            CRM_Core_Session::setStatus(E::ts("%1 contact source fields updated."));
+            $actvitites_updated = CRM_Contactsource_Contactsource::updateContactSourceField();
+            CRM_Core_Session::setStatus(E::ts("%1 contact source fields updated.", [1 => $actvitites_updated]));
         }
         parent::postProcess();
     }

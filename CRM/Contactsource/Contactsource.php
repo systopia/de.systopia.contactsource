@@ -171,4 +171,163 @@ class CRM_Contactsource_Contactsource
         }
     }
 
+    /**
+     * Update contact source fields according to configured mode
+     *
+     * @param array $contact_ids
+     *      contact IDs to update. If empty, ALL contacts are updated
+     *
+     * @return integer
+     *   count of updated contacts
+     */
+    public static function updateContactSourceField($contact_ids = null)
+    {
+        $change_count = 0;
+        $mode = CRM_Contactsource_Configuration::getContactSourceSyncMode();
+        if (empty($mode)) {
+            return 0;
+        }
+
+        // get activity type ID
+        $activity_type_id = CRM_Contactsource_Configuration::getActivityTypeID();
+
+        // get contact clause
+        $CONTACT_CLAUSE = 'TRUE';
+        if (!empty($contact_ids) && is_array($contact_ids)) {
+            $clean_contact_ids = [];
+            foreach ($contact_ids as $contact_id) {
+                $clean_contact_ids[] = (int) $contact_id;
+            }
+            $CONTACT_CLAUSE = 'IN (' . implode(',', $clean_contact_ids) . ')';
+        }
+
+        if ($mode == 'first_campaign' || $mode == 'first_subject') {
+        // SINGLE VALUE MODE
+            // first step: find out which is the first contribution
+            $first_contact_table = CRM_Utils_SQL_TempTable::build();
+            $first_contact_table->createWithQuery("
+                SELECT
+                  contact.id                            AS contact_id,
+                  contact.source                        AS current_source,
+                  contact.source                        AS new_source,
+                  MIN(first_contact.activity_date_time) AS first_contact
+                FROM civicrm_contact contact
+                LEFT JOIN civicrm_activity_contact ac 
+                  ON contact.id = ac.contact_id
+                  AND ac.record_type_id = 3
+                LEFT JOIN civicrm_activity first_contact
+                  ON first_contact.id = ac.activity_id
+                  AND first_contact.activity_type_id = {$activity_type_id}
+                WHERE {$CONTACT_CLAUSE}
+                  AND first_contact.id IS NOT NULL
+                GROUP BY contact.id;
+            ");
+            $first_contact_table_name = $first_contact_table->getName();
+            CRM_Core_DAO::executeQuery("ALTER TABLE {$first_contact_table_name} ADD INDEX contact_id(contact_id)");
+
+            // next step: calculate new subject
+            $subject_term = ($mode == 'first_campaign') ? "campaign.title" : "activity.subject";
+            CRM_Core_DAO::executeQuery("
+            UPDATE {$first_contact_table_name} first_contact
+            LEFT JOIN civicrm_activity_contact ac 
+              ON ac.contact_id = first_contact.contact_id
+              AND ac.record_type_id = 3
+            LEFT JOIN civicrm_activity activity
+              ON activity.id = ac.activity_id
+              AND activity.activity_type_id = {$activity_type_id}
+              AND activity.activity_date_time = first_contact.first_contact
+            LEFT JOIN civicrm_campaign campaign
+              ON campaign.id = activity.campaign_id
+            SET first_contact.new_source = COALESCE({$subject_term})
+            ");
+
+            // calculate count
+            $change_count = CRM_Core_DAO::singleValueQuery("
+            SELECT COUNT(*) 
+            FROM {$first_contact_table_name}
+            WHERE (current_source IS NULL AND new_source IS NOT NULL)
+               OR current_source <> new_source            
+            ");
+
+            // finally: update contact
+            CRM_Core_DAO::executeQuery("
+            UPDATE civicrm_contact contact
+            LEFT JOIN {$first_contact_table_name} first_contact
+              ON first_contact.contact_id = contact.id
+            SET contact.source = first_contact.new_source
+            WHERE (contact.source IS NULL AND first_contact.new_source IS NOT NULL)
+               OR contact.source <> first_contact.new_source
+            ");
+
+            // cleanup
+            $first_contact_table->drop();
+
+
+        } elseif ($mode == 'all_campaign' || $mode == 'all_subject') {
+        // AGGREGATED VALUE MODE
+            // first step: find out which is the first contribution
+            $first_contact_table = CRM_Utils_SQL_TempTable::build();
+            $first_contact_table->createWithQuery("
+                SELECT
+                  contact.id                            AS contact_id,
+                  first_contact.id                      AS activity_id
+                FROM civicrm_contact contact
+                LEFT JOIN civicrm_activity_contact ac 
+                  ON contact.id = ac.contact_id
+                  AND ac.record_type_id = 3
+                LEFT JOIN civicrm_activity first_contact
+                  ON first_contact.id = ac.activity_id
+                  AND first_contact.activity_type_id = {$activity_type_id}
+                WHERE {$CONTACT_CLAUSE}
+                  AND first_contact.id IS NOT NULL
+                ORDER BY first_contact.activity_date_time ASC
+            ");
+            $first_contact_table_name = $first_contact_table->getName();
+            CRM_Core_DAO::executeQuery("ALTER TABLE {$first_contact_table_name} ADD INDEX contact_id(contact_id)");
+
+            // seconds step: calculate old and new subject
+            $subject_term = ($mode == 'all_campaign') ? "campaign.title" : "activity.subject";
+            $subject_update_table = CRM_Utils_SQL_TempTable::build();
+            $subject_update_table->createWithQuery("
+                SELECT
+                  first_contact.contact_id                                                  AS contact_id,
+                  contact.source                                                            AS current_source,
+                  SUBSTRING(GROUP_CONCAT(DISTINCT({$subject_term}) SEPARATOR ', '), 1, 255) AS new_source
+                FROM {$first_contact_table_name} first_contact
+                LEFT JOIN civicrm_activity activity
+                  ON activity.id = first_contact.activity_id
+                LEFT JOIN civicrm_campaign campaign
+                  ON campaign.id = activity.campaign_id
+                LEFT JOIN civicrm_contact contact
+                  ON contact.id = first_contact.contact_id
+                GROUP BY contact.id
+            ");
+
+            // calculate count
+            $subject_update_table_name = $subject_update_table->getName();
+            $change_count = CRM_Core_DAO::singleValueQuery("
+            SELECT COUNT(*) 
+            FROM {$subject_update_table_name}
+            WHERE (current_source IS NULL AND new_source IS NOT NULL)
+               OR current_source <> new_source            
+            ");
+
+
+            // finally: update contact
+            CRM_Core_DAO::executeQuery("
+            UPDATE civicrm_contact contact
+            LEFT JOIN {$subject_update_table_name} first_contact
+              ON first_contact.contact_id = contact.id
+            SET contact.source = first_contact.new_source
+            WHERE (contact.source IS NULL AND first_contact.new_source IS NOT NULL)
+               OR contact.source <> first_contact.new_source
+            ");
+
+            // cleanup
+            $first_contact_table->drop();
+            $subject_update_table->drop();
+        }
+
+        return $change_count;
+    }
 }

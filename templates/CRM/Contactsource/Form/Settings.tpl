@@ -15,6 +15,7 @@
 
 {crmScope extensionKey='de.systopia.contactsource'}
 <h3>{ts}General Settings{/ts}</h3>
+<br/>
 <div class="crm-section">
   <div class="label">{$form.contact_source_inject_form.label}</div>
   <div class="content">{$form.contact_source_inject_form.html}</div>
@@ -27,6 +28,7 @@
 </div>
 
 <h3>{ts}Fill Contact's Source Field{/ts}</h3>
+<br/>
 <div class="crm-section">
   <div class="label">{$form.contact_source_sync.label}</div>
   <div class="content">{$form.contact_source_sync.html}</div>
@@ -40,6 +42,7 @@
 </div>
 
 <h3>{ts}Fill Contact Source Activity Subject{/ts}</h3>
+<br/>
 <div class="crm-section">
   <div class="label">{$form.contact_source_subject.label}</div>
   <div class="content">{$form.contact_source_subject.html}</div>

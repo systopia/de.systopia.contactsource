@@ -202,18 +202,37 @@ function contactsource_civicrm_pre($op, $objectName, $id, &$params) {
 }
 
 /**
- * Implements hook_civicrm_navigationMenu().
+ * Implements hook_civicrm_pageRun
  *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
- *
-function contactsource_civicrm_navigationMenu(&$menu) {
-  _contactsource_civix_insert_navigation_menu($menu, 'Mailings', array(
-    'label' => E::ts('New subliminal message'),
-    'name' => 'mailing_subliminal_message',
-    'url' => 'civicrm/mailing/subliminal',
-    'permission' => 'access CiviMail',
-    'operator' => 'OR',
-    'separator' => 0,
-  ));
-  _contactsource_civix_navigationMenu($menu);
-} // */
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_pageRun
+ */
+function contactsource_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+    if ($objectName == 'Activity' && ($op == 'edit' || $op == 'create')) {
+        $contact_source_activity_type = CRM_Contactsource_Configuration::getActivityTypeID();
+        if (isset($objectRef->activity_type_id)) {
+            $activity_type_id = $objectRef->activity_type_id;
+        } else {
+            $activity_type_id = civicrm_api3('Activity', 'getvalue', [
+                'id' => $objectId,
+                'return' => 'activity_type_id']);
+        }
+        if ($activity_type_id == $contact_source_activity_type) {
+            // maybe we need to update the contact's source field:
+            if (CRM_Contactsource_Configuration::getContactSourceSyncMode()) {
+                // get contacts
+                $contact_ids = CRM_Core_DAO::singleValueQuery("
+                    SELECT GROUP_CONCAT(contact_id) 
+                    FROM civicrm_activity_contact 
+                    WHERE activity_id = {$objectId}
+                      AND record_type_id = 3");
+                if ($contact_ids) {
+                    CRM_Contactsource_Contactsource::updateContactSourceField(explode(',', $contact_ids));
+                }
+            }
+
+            if (empty($params['subject'])) {
+                $params['subject'] = CRM_Contactsource_Contactsource::getContactSourceActivitySubject($params);
+            }
+        }
+    }
+}

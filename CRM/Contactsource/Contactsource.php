@@ -200,7 +200,7 @@ class CRM_Contactsource_Contactsource
             foreach ($contact_ids as $contact_id) {
                 $clean_contact_ids[] = (int) $contact_id;
             }
-            $CONTACT_CLAUSE = 'IN (' . implode(',', $clean_contact_ids) . ')';
+            $CONTACT_CLAUSE = 'contact.id IN (' . implode(',', $clean_contact_ids) . ')';
         }
 
         if ($mode == 'first_campaign' || $mode == 'first_subject') {

@@ -113,6 +113,26 @@ class CRM_Contactsource_Contactsource
 
 
     /**
+     * Calculate the contact source activity subject based on the settings
+     *
+     * @return string
+     *   suggested activity source
+     */
+    public static function getContactSourceActivitySubject($activity_data) {
+        $fill_mode = CRM_Contactsource_Configuration::getDefaultActivitySubject();
+        if ($fill_mode == 'campaign_title'
+            && !empty($activity_data['campaign_id'])) {
+            return civicrm_api3('Campaign', 'getvalue', [
+                'id' => $activity_data['campaign_id'],
+                'return' => 'title',
+            ]);
+        }
+
+        // fallback: nothing
+        return '';
+    }
+
+    /**
      * Will update (i.e. fill) all activity subjects according to the settings
      *
      * @return integer

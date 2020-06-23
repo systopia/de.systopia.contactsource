@@ -149,8 +149,6 @@ function contactsource_civicrm_entityTypes(&$entityTypes) {
   _contactsource_civix_civicrm_entityTypes($entityTypes);
 }
 
-// --- Functions below this ship commented out. Uncomment as required. ---
-
 /**
  * Implements hook_civicrm_buildForm().
  *
@@ -184,6 +182,23 @@ function contactsource_civicrm_postProcess($formName, &$form) {
  */
 function contactsource_civicrm_pageRun(&$page) {
   CRM_Contactsource_Contactsource::injectInPage($page);
+}
+
+/**
+ * Implements hook_civicrm_pageRun
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_pageRun
+ */
+function contactsource_civicrm_pre($op, $objectName, $id, &$params) {
+    if ($objectName == 'Activity' && $op == 'create') {
+        $contact_source_activity_type = CRM_Contactsource_Configuration::getActivityTypeID();
+        if ($params['activity_type_id'] == $contact_source_activity_type) {
+            // this is a contact source activity type
+            if (empty($params['subject'])) {
+                $params['subject'] = CRM_Contactsource_Contactsource::getContactSourceActivitySubject($params);
+            }
+        }
+    }
 }
 
 /**

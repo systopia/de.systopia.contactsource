@@ -15,7 +15,13 @@
 
 {crmScope extensionKey='de.systopia.contactsource'}
 <h3>{ts}Fill Contact's Source Field{/ts}</h3>
-<div class="crm-section">
+  <div class="crm-section">
+    <div class="label">{$form.contact_source_inject.label}</div>
+    <div class="content">{$form.contact_source_inject.html}</div>
+    <div class="clear"></div>
+  </div>
+
+  <div class="crm-section">
   <div class="label">{$form.contact_source_sync.label}</div>
   <div class="content">{$form.contact_source_sync.html}</div>
   <div class="clear"></div>

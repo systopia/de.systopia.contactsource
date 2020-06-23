@@ -108,4 +108,21 @@ class CRM_Contactsource_Configuration
             return $value;
         }
     }
+
+    /**
+     * Get the mode to sync the contact source activities to the
+     *  contact's source field
+     *
+     * @return string
+     * ''               => "disabled"
+     * 'first_campaign' => "First contact (campaign)"
+     * 'first_subject'  => "First contact (subject)"
+     * 'all_campaign'   => "All contacts (campaign)"
+     * 'all_subject'    => "All contacts (subject)"
+     *
+     */
+    public static function sourceInjectionEnabled()
+    {
+        return !empty(Civi::settings()->get('contact_source_inject'));
+    }
 }

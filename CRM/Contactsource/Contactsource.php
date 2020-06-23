@@ -30,15 +30,17 @@ class CRM_Contactsource_Contactsource
      */
     public static function injectInPage($page)
     {
-        $pageName = $page->getVar('_name');
-        // only if contact summary
-        if ($pageName == 'CRM_Contact_Page_View_Summary') {
-            $contact_id = $page->getVar('_contactId');
-            $contact_source_string = self::getContactSourceString($contact_id, 2);
-            if ($contact_source_string) {
-                $page->assign('contact_source_string', $contact_source_string);
-                CRM_Core_Region::instance('page-body')->add(array(
-                    'template' => 'CRM/Contactsource/Contactsource.tpl'));
+        if (CRM_Contactsource_Configuration::sourceInjectionEnabled()) {
+            $pageName = $page->getVar('_name');
+            // only if contact summary
+            if ($pageName == 'CRM_Contact_Page_View_Summary') {
+                $contact_id = $page->getVar('_contactId');
+                $contact_source_string = self::getContactSourceString($contact_id, 2);
+                if ($contact_source_string) {
+                    $page->assign('contact_source_string', $contact_source_string);
+                    CRM_Core_Region::instance('page-body')->add(array(
+                        'template' => 'CRM/Contactsource/Contactsource.tpl'));
+                }
             }
         }
     }

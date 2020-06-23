@@ -32,8 +32,7 @@ class CRM_Contactsource_ActivityCreation {
       return false;
     }
 
-    // TODO: setting to turn it off?
-    return true;
+    return CRM_Contactsource_Configuration::formInjectionEnabled();
   }
 
 

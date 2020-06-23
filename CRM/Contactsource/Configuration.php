@@ -110,19 +110,18 @@ class CRM_Contactsource_Configuration
     }
 
     /**
-     * Get the mode to sync the contact source activities to the
-     *  contact's source field
-     *
-     * @return string
-     * ''               => "disabled"
-     * 'first_campaign' => "First contact (campaign)"
-     * 'first_subject'  => "First contact (subject)"
-     * 'all_campaign'   => "All contacts (campaign)"
-     * 'all_subject'    => "All contacts (subject)"
-     *
+     * Is the injection of the artificial source field in the contact summary activated?
      */
     public static function sourceInjectionEnabled()
     {
-        return !empty(Civi::settings()->get('contact_source_inject'));
+        return !empty(Civi::settings()->get('contact_source_inject_field'));
+    }
+
+    /**
+     * Should the contact source be entered in the contact create form
+     */
+    public static function formInjectionEnabled()
+    {
+        return !empty(Civi::settings()->get('contact_source_inject_form'));
     }
 }

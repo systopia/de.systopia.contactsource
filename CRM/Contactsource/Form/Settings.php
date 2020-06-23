@@ -24,12 +24,19 @@ class CRM_Contactsource_Form_Settings extends CRM_Core_Form
 
     public function buildQuickForm()
     {
-        // synchronise contact source
+        // general settings
         $this->add(
             'checkbox',
-            'contact_source_inject',
-            E::ts("Inject additional source field")
+            'contact_source_inject_field',
+            E::ts("Inject artificial source field")
         );
+        $this->add(
+            'checkbox',
+            'contact_source_inject_form',
+            E::ts("Add to contact create form")
+        );
+
+        // synchronise contact source
         $this->add(
             'select',
             'contact_source_sync',
@@ -77,7 +84,8 @@ class CRM_Contactsource_Form_Settings extends CRM_Core_Form
 
         // set current values
         $this->setDefaults([
-            'contact_source_inject' => CRM_Contactsource_Configuration::sourceInjectionEnabled(),
+            'contact_source_inject_field' => CRM_Contactsource_Configuration::sourceInjectionEnabled(),
+            'contact_source_inject_form' => CRM_Contactsource_Configuration::formInjectionEnabled(),
             'contact_source_sync' => Civi::settings()->get('contact_source_sync'),
             'contact_source_subject' => CRM_Contactsource_Configuration::getDefaultActivitySubject(),
         ]);
@@ -89,7 +97,8 @@ class CRM_Contactsource_Form_Settings extends CRM_Core_Form
     {
         // first: store values
         $values = $this->exportValues();
-        Civi::settings()->set('contact_source_inject', CRM_Utils_Array::value('contact_source_inject', $values, 0));
+        Civi::settings()->set('contact_source_inject_field', CRM_Utils_Array::value('contact_source_inject_field', $values, 0));
+        Civi::settings()->set('contact_source_inject_form', CRM_Utils_Array::value('contact_source_inject_form', $values, 0));
         Civi::settings()->set('contact_source_sync', CRM_Utils_Array::value('contact_source_sync', $values, ''));
         Civi::settings()->set('contact_source_subject', CRM_Utils_Array::value('contact_source_subject', $values, ''));
 

@@ -8,6 +8,6 @@ CiviCRM features a ``source`` field with a contact. This field, however, has thr
 This extension aims to fix these three problems. It creates a new activity type ``First Contact`` to mark the event of the first encounter with the contact. Activities have a date, a campaign, and survive the merge process without losing data.
 
 For convenience, this extension also features:
-* mandatory field set in the create contact form, so you are forced to provide this information
-* the current source field in the contact summary is now displaying the values of the new ``First Contact`` activities 
-* statistics on your contact sources can now be produced with the activity/campaign reports 
+* you can either decide to override CiviCRM's ``source`` field *or* render a virtual source field in the contact summary with the new ``First Contact`` activity data
+* a mandatory field set in the contact create form, so you are forced to provide this information
+* statistics on your contact source activities can now be produced with the activity/campaign reports 

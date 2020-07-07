@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/admin/contactsource</path>
+    <page_callback>CRM_Contactsource_Form_Settings</page_callback>
+    <title>Contact Source Settings</title>
+    <access_arguments>administer CiviCRM</access_arguments>
+    <adminGroup>Communications</adminGroup>
+    <icon>admin/import_export_map.png</icon>
+  </item>
+</menu>

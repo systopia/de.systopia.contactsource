@@ -15,6 +15,8 @@
 +--------------------------------------------------------*/
 
 
+use CRM_Contactsource_ExtensionUtil as E;
+
 /**
  * Collection of upgrade steps.
  */

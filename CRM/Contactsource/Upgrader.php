@@ -20,7 +20,7 @@ use CRM_Contactsource_ExtensionUtil as E;
 /**
  * Collection of upgrade steps.
  */
-class CRM_Contactsource_Upgrader extends CRM_Contactsource_Upgrader_Base {
+class CRM_Contactsource_Upgrader extends CRM_Extension_Upgrader_Base {
 
   /**
    * Installer

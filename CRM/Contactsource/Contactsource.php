@@ -38,8 +38,8 @@ class CRM_Contactsource_Contactsource
                 $contact_source_string = self::getContactSourceString($contact_id, 2);
                 if ($contact_source_string) {
                     $page->assign('contact_source_string', $contact_source_string);
-                    CRM_Core_Region::instance('page-body')->add(array(
-                        'template' => 'CRM/Contactsource/Contactsource.tpl'));
+                    CRM_Core_Region::instance('page-body')->add([
+                        'template' => 'CRM/Contactsource/Contactsource.tpl']);
                 }
             }
         }
